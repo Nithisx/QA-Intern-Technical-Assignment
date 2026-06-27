@@ -11,7 +11,7 @@ The project includes:
 - Automation Source Code
 - Automation Execution Report
 
-The automation framework is built using **Python**, **Selenium WebDriver**, **Pytest**, and follows the **Page Object Model (POM)** design pattern to ensure scalability, maintainability, and code reusability.
+The automation framework is built using **Python**, **Playwright (Sync API)**, **Pytest**, and follows the **Page Object Model (POM)** design pattern to ensure scalability, maintainability, and code reusability.
 
 ---
 
@@ -32,36 +32,38 @@ Prepared comprehensive manual test cases covering the Login and Signup functiona
 - Functional Testing
 
 **Deliverable**
-- `QA_Test_Cases.xlsx`
+- [QA_Test_Cases.xlsx](QA_Test_Cases.xlsx)
 
 ---
 
 ## ✅ Task 2 – Defect Reporting
 
-Created a professional defect report for the identified issue.
+Created a professional defect report for the identified issues.
 
-**Reported Defect**
-- Login page allows users to proceed with an invalid email format.
+**Reported Defects**
+- DEF-001: Login page allows users to proceed with an invalid email format.
+- DEF-002: Unregistered email login redirects to signup page without displaying an error message.
 
 **Deliverable**
-- `Defect_Report.pdf`
+- [Defect_Report.pdf](Defect_Report.pdf)
 
 ---
 
 ## ✅ Task 3 – Automation Testing
 
-Automated the Login functionality using **Python**, **Selenium WebDriver**, and **Pytest** following the **Page Object Model (POM)** design pattern.
+Automated the Login and Signup functionality using **Python**, **Playwright (Sync API)**, and **Pytest** following the **Page Object Model (POM)** design pattern.
 
 ### Automated Scenarios
 
-- Valid Login
-- Invalid Login
+- Valid New User Signup & Verification (ThrowawayMail API Polling)
+- Valid Login with Verified Account
+- Invalid Login Password Validation
 - Empty Email Validation
 - Empty Password Validation
-- Invalid Email Validation
-- Password Visibility
-- Navigation Flow
-- UI Validation
+- Invalid Email Format Validation
+- Common Email Domain Typo Validation
+- SQL Injection Vector Sanitization Check
+- HTML/XSS Script Injection Sanitization Check
 
 ---
 
@@ -78,31 +80,32 @@ Executed the automated test suite and generated a detailed HTML execution report
 - Detailed Test Logs
 
 **Deliverable**
-- `result.html`
+- [result.html](result.html)
 
 ---
 
 # Project Structure
 
 ```text
-Automation Code/
+QA-Intern-Technical-Assignment/
 │
-├── __pycache__/
-├── .pytest_cache/
+├── Automation Code/
+│   ├── pages/
+│   │   ├── base_page.py
+│   │   ├── login_page.py
+│   │   └── signup_page.py
+│   ├── tests/
+│   │   └── test_tichi_auth.py
+│   ├── utils/
+│   │   └── email_service.py
+│   ├── conftest.py
+│   ├── dump_signup.py
+│   ├── pytest.ini
+│   └── requirements.txt
 │
-├── pages/
-│   ├── login_page.py
-│   ├── signup_page.py
-│
-├── tests/
-│   ├── test_login.py
-│
-├── utils/
-│
-├── conftest.py
-├── dump_signup.py
-├── pytest.ini
-├── requirements.txt
+├── Output images/
+│   ├── output1.png
+│   └── output2.png
 │
 ├── QA_Test_Cases.xlsx
 ├── Defect_Report.pdf
@@ -115,7 +118,7 @@ Automation Code/
 # Tech Stack
 
 - Python 3.x
-- Selenium WebDriver
+- Playwright (Sync API)
 - Pytest
 - Pytest HTML Report
 - Page Object Model (POM)
@@ -152,10 +155,10 @@ Execute all automated test cases
 pytest
 ```
 
-Generate an HTML execution report
+Generate an HTML execution report (Pre-configured in `pytest.ini`)
 
 ```bash
-pytest --html=result.html --self-contained-html
+pytest --html=../result.html --self-contained-html
 ```
 
 ---
@@ -172,11 +175,13 @@ pytest --html=result.html --self-contained-html
 - Password Masking
 - Password Visibility Toggle
 - Login Navigation
+- SQL Injection (SQLi) Sanitization
+- Cross-Site Scripting (XSS / HTML) Sanitization
 
 ## Signup Module
 
 - New User Registration Flow
-- Locked Email Verification
+- Real-time Email Verification (ThrowawayMail.app API wrapper)
 - Required Field Validation
 - Agreement Checkbox Validation
 
@@ -184,14 +189,11 @@ pytest --html=result.html --self-contained-html
 
 # Framework Highlights
 
-- Page Object Model (POM)
-- Modular Project Structure
-- Reusable Page Classes
-- Pytest Fixtures
-- HTML Test Reporting
-- Easy Maintenance
-- Scalable Automation Framework
-- Readable and Clean Code
+- **Page Object Model (POM):** Decouples page UI selectors and actions from test scripts.
+- **API Email Verification:** Automatically generates disposable mailboxes and polls emails to extract activation links.
+- **Robust Locators:** Employs precise Playwright locators for highly resilient DOM interactions.
+- **HTML Reporting:** Beautifully custom-styled execution reporting dashboard.
+- **Resilient Execution:** Automated retries and safety inputs to handle dynamic validation states.
 
 ---
 
@@ -199,28 +201,38 @@ pytest --html=result.html --self-contained-html
 
 - Application is available and accessible.
 - Stable internet connection is available.
-- Chrome browser is installed.
-- Compatible ChromeDriver is available.
+- Playwright browser engines are installed (`playwright install`).
 
 ---
 
 # Submission Files
 
-| File | Description |
+| File / Folder | Description |
 |------|-------------|
-| QA_Test_Cases.xlsx | Manual test cases for Login and Signup functionality |
-| Defect_Report.pdf | Defect report for the identified issue |
-| result.html | Automation execution report |
-| pages/ | Page Object Model implementation |
-| tests/ | Automated test scripts |
-| utils/ | Utility classes and helper methods |
-| requirements.txt | Python project dependencies |
-| README.md | Project documentation |
+| [QA_Test_Cases.xlsx](QA_Test_Cases.xlsx) | Manual test cases for Login and Signup functionality |
+| [Defect_Report.pdf](Defect_Report.pdf) | Defect report for the identified issues |
+| [result.html](result.html) | Automation execution report |
+| [pages/](Automation%20Code/pages) | Page Object Model implementation |
+| [tests/](Automation%20Code/tests) | Automated test scripts |
+| [utils/](Automation%20Code/utils) | Utility classes and helper methods (e.g. Email service) |
+| [requirements.txt](Automation%20Code/requirements.txt) | Python project dependencies |
+| [README.md](README.md) | Project documentation |
+
+---
+
+# 📊 Test Execution Screenshots
+
+Below are the execution result screenshots captured from the test automation run:
+
+### 1. Test Execution Summary Dashboard
+![Test execution summary dashboard](Output%20images/output1.png)
+
+### 2. Detailed Test Logs and Execution Steps
+![Detailed test logs and execution steps](Output%20images/output2.png)
 
 ---
 
 # Author
 
-**Nithizh**
-
-QA Intern Technical Assignment Submission
+**Nithizh**  
+*QA Intern Technical Assignment Submission*
