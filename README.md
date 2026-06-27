@@ -55,15 +55,57 @@ Automated the Login and Signup functionality using **Python**, **Playwright (Syn
 
 ### Automated Scenarios
 
-- Valid New User Signup & Verification (ThrowawayMail API Polling)
-- Valid Login with Verified Account
-- Invalid Login Password Validation
-- Empty Email Validation
-- Empty Password Validation
-- Invalid Email Format Validation
-- Common Email Domain Typo Validation
-- SQL Injection Vector Sanitization Check
-- HTML/XSS Script Injection Sanitization Check
+- **Valid New User Signup & Verification:** Creates account, retrieves activation URL via ThrowawayMail API, and verifies session.
+- **Valid Login with Verified Account:** logs in using newly created credentials and verifies redirection.
+- **Invalid Login Password Validation:** Attempts login with an incorrect password and verifies validation responses.
+- **Empty Email Validation:** Verifies that leaving the email address field blank blocks login.
+- **Empty Password Validation:** Verifies that leaving the password field blank blocks submission.
+- **Invalid Email Format Validation:** Confirms invalid/malformed email format handling.
+- **Common Email Domain Typo Validation:** Verifies warning/blocking for typos like `gmal` instead of `gmail`.
+- **SQL Injection (SQLi) Sanitization:** Asserts database error strings are not exposed.
+- **HTML/XSS Script Injection Sanitization:** Checks input sanitization for scripts.
+
+---
+
+## ⚙️ Automation Code Architecture & Email Polling Workflow
+
+### 1. ThrowawayMail API Polling Flow
+
+The registration suite integrates with the `ThrowawayMail.app` REST API to automate real-time email verification. Below is the workflow diagram of this implementation:
+
+```mermaid
+graph TD
+    A[Start Signup Flow] --> B[Initialize EmailService]
+    B --> C[POST /api/mailboxes]
+    C -->|Response: 201| D[Store Mailbox ID & Address]
+    D --> E[Fill Registration Form & Click Sign Up]
+    E --> F[Start Polling Loop: GET /api/mailboxes/ID/messages]
+    F -->|No messages?| G[Wait 5s & retry up to 12 times]
+    G --> F
+    F -->|Message Found!| H[GET /api/mailboxes/ID/messages/MSG_ID]
+    H -->|Extract full body / HTML| I[Regex extract activation URL]
+    I --> J[Navigate to activation link via Playwright]
+    J --> K[Account Verified & Test Success]
+```
+
+#### Detailed Polling Steps:
+1. **Mailbox Creation:** Sends a `POST` request to `/api/mailboxes` to create a fresh temporary inbox, returning a unique `id` and email `address`.
+2. **Form Submission:** The automated script fills out the signup form on Tichi and clicks "Sign Up".
+3. **Inbox Polling:** Every 5 seconds (up to 12 attempts), the test queries `/api/mailboxes/{id}/messages` to check for incoming verification emails.
+4. **Message Details Retrieval:** Once a message is detected, it makes a detailed `GET` request to `/api/mailboxes/{id}/messages/{msg_id}` to fetch the full HTML email body.
+5. **Activation Regex:** A regex pattern `https?://tichi-app-webapp-stage\.web\.app/activate/[^\s"]+` parses the body, extracts the activation URL, and loads it to verify the user.
+
+---
+
+### 2. Automation Code Component Design
+
+The framework is highly modular, written in compliance with clean-code principles:
+
+* **[BasePage (Automation Code/pages/base_page.py)](Automation%20Code/pages/base_page.py):** A thin wrapper over Playwright's `Page` object. It centralizes functions like `click()`, `fill()`, and `navigate()`. It handles flaky elements by incorporating safety checks (`force=True` on buttons, blurring/focusing inputs, and handling overlays).
+* **[LoginPage (Automation Code/pages/login_page.py)](Automation%20Code/pages/login_page.py):** Implements selectors and actions for the login portal. It manages the multi-step login flow (entering email, clicking Continue, entering password, and confirming navigation to `/dashboard`).
+* **[SignupPage (Automation Code/pages/signup_page.py)](Automation%20Code/pages/signup_page.py):** Manages registration fields. It automatically generates dynamic test data (like random 10-digit phone numbers and secure passwords compliant with the 8-15 character limit) and handles checkbox agreements.
+* **[EmailService (Automation Code/utils/email_service.py)](Automation%20Code/utils/email_service.py):** A standalone helper wrapper that encapsulates all HTTP calls to the `ThrowawayMail.app` REST API, parsing results and logging API statuses.
+* **[test_tichi_auth.py (Automation Code/tests/test_tichi_auth.py)](Automation%20Code/tests/test_tichi_auth.py):** The master test suite containing all 8 validation test cases, leveraging Pytest fixtures to pass states between tests.
 
 ---
 
